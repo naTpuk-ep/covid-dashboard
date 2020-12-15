@@ -1,4 +1,3 @@
-// import '../autoCloser.js';
 import './index.scss';
 import getData from './js/getData.js';
 import APIUrls from './js/APIUrls.js';
