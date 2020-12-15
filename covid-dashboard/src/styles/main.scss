@@ -1,0 +1,46 @@
+body {
+  background: #212121;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  font-family: Roboto, sans-serif;
+  font-size: 24px;
+  color: white;
+  box-sizing: border-box;
+}
+
+.header {
+  &__container {
+    margin: 50px 70px;
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 2rem;
+  }
+}
+.main {
+  &__container {
+    margin: 50px 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+  }
+
+  &__section {
+    margin: 20px;
+  }
+
+  &__section-title {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  &__section-content {
+    min-height: 100px;
+    background-color: orange;
+  }
+}
