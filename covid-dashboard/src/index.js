@@ -1,18 +1,6 @@
-import getData from './js/getData.js';
 // import '../autoCloser.js';
-
-const APIUrls = {
-	global: 'https://corona-api.com/timeline', 
-	countries: 'https://corona-api.com/countries',			// <-  push here Api url
-};
-
-
-Object.defineProperty(APIUrls, 'updateFreqSec', { //update Frequency property (in seconds)
-	value: 10,																		//
-	writable: true,
-  enumerable: false,
-  configurable: true,
-});
+import getData from './js/getData.js';
+import APIUrls from './js/APIUrls.js';
 
 async function render() {
 	getData(APIUrls)
@@ -24,7 +12,4 @@ async function render() {
 		});
 }
 
-// localStorage.clear();
-
 render();
-

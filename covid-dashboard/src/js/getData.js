@@ -1,4 +1,5 @@
 let APIUrls;
+
 async function getData(urls) {
 	APIUrls = urls;
 	if (_checkStorageData(Date.now(), APIUrls.updateFreqSec)) {
