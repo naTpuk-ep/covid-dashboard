@@ -1,5 +1,5 @@
 import getData from './js/getData.js';
-import '../autoCloser.js';
+// import '../autoCloser.js';
 
 const APIUrls = {
 	global: 'https://corona-api.com/timeline', 
