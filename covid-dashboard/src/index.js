@@ -11,7 +11,7 @@ async function render() {
 	getData(APIUrls)
 		.then(res => {
 			console.log(res);						// ->  pull the data
-			new Maps();
+			new Maps(res);
 		})
 		.catch(e => {
 			console.error(e);
