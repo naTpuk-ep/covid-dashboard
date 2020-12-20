@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+
+// localStorage.clear();
+
 const GeoJSON = require('geojson');
 import countries from './countries';
 const L_Token = 'pk.eyJ1IjoibmF0cHVrLWVwIiwiYSI6ImNraXJxZHZyNzBwejEydGwzcTg3NXpidG4ifQ.GL9jfvvsWibQh0y7c-Ycdw';
@@ -14,8 +17,18 @@ export default class Maps {
 		};
 		const wrapper = document.querySelector('.main__section_map .main__section-content');
 		wrapper.innerHTML = '<div id="map"></div>';
+		this.initMap();
+		this.initGeoData(geoData);
+		this.style = this.style.bind(this);
+		this.onEachFeature = this.onEachFeature.bind(this);
+		this.highlightHandler = this.highlightHandler.bind(this);
+		this.resetHighlightHandler = this.resetHighlightHandler.bind(this);
+		this.reset = this.reset.bind(this);
+		this.update = this.update.bind(this);
+		this.initDataLayer();
+	}
 
-		//-----------------
+	initMap() {
 		this.map = L.map('map', {
 			worldCopyJump: true,
 			center: [30, 0],
@@ -29,81 +42,63 @@ export default class Maps {
 			zoomOffset: -1,
 			accessToken: L_Token
 		}).addTo(this.map);
-		//------------------
+	}
 
-		
+	initGeoData(geoData) {
 		this.geoData = geoData;
 		console.log(this.geoData);
-
+		const currentCountriesCases = this._getCurrentCountriesCases();
 		this.geoData.features.forEach(feature => {
-			feature.getInfoForView = (data) => {
-				let res = 0;
-				data.countries.forEach(country => {
-					if (country.code === feature.properties.code) {
-						res = this.getNeededData(country);
-						// console.log(res);
-					}
-				});
-				return res;
+			feature.getDataforView = () => {
+				return currentCountriesCases[feature.properties.code] || 0;
 			};
 		});
-		
-		this.style = this.style.bind(this);
-		this.onEachFeature = this.onEachFeature.bind(this);
-		this.highlightHandler = this.highlightHandler.bind(this);
-		this.resetHighlightHandler = this.resetHighlightHandler.bind(this);
-		this.reset = this.reset.bind(this);
+	}
+
+	initDataLayer() {
 		this.geojson = L.geoJson(this.geoData, {
 			style: this.style,
 			onEachFeature: this.onEachFeature
 		}).addTo(this.map);
-		this.geojson.addTo(this.map);
-		console.log(wrapper);
 		document.querySelector('.main__section_map .main__section-title').addEventListener('click', () => {
 			this.update({
 				today: true,
 				sample: true
 			});
 		});
-		// console.log();
 	}
 
-	getNeededData(country) {
+	_getCurrentCountriesCases() {
 		const sampleVol = 100000;
-		const population = country.population;
-		console.log(this.state.today);
-		const confirmed = this.state.today ? country.today.confirmed : country.latest_data.confirmed;
-		console.log(country.code, confirmed);
-		return this.state.sample ? sampleVol * confirmed / population : confirmed;
+		const currentCountriesCases = {};
+		this.data.countries.forEach(country => {
+			let population = country.population;
+			let confirmed = this.state.today ? country.today.confirmed : country.latest_data.confirmed;
+			let cases = this.state.sample ? sampleVol * confirmed / population : confirmed;
+			currentCountriesCases[country.code] = cases;
+		});
+		this.maxCasesValue = Math.max(...Object.values(currentCountriesCases));
+		console.log(currentCountriesCases);
+		return currentCountriesCases;
 	}
 
-	update({today, sample}) {
-		console.log(1);
-		// console.log(today, sample);
-		this.state = {
-			today,
-			sample,
-		};
+	update(state) {
+		this.state = state;
 		console.log(this.state);
-		Object.values(this.geojson._layers).forEach(layer => {
-			this.geojson.resetStyle(layer);
-
-		});
+		this.geojson.remove();
+		console.log(this.geojson);
+		this.initDataLayer();
 	}
 
 	getColor(cases) {
-		const allCountriesCases = [];
-		this.data.countries.forEach(country => {
-			allCountriesCases.push(this.getNeededData(country));
-		});
-		const max = Math.max(...allCountriesCases);
-		const casesVisualFunction = Math.sqrt(1 - ((cases / max) - 1) ** 2);
-		return `rgb(255 165 0 / ${casesVisualFunction})`;
+		const casesVisualize = Math.sqrt(1 - ((cases / this.maxCasesValue) - 1) ** 2);
+		return `rgb(255 165 0 / ${casesVisualize})`;
 	}
 
 	style(feature) {
+		console.log('style');
     return {
-        fillColor: this.getColor(feature.getInfoForView(this.data)),
+        fillColor: this.getColor(feature.getDataforView()),
         weight: 1,
         opacity: 1,
         color: 'white',
@@ -128,8 +123,6 @@ export default class Maps {
 	}
 
 	resetHighlightHandler(e) {
-		// console.log(e.target);
-		// console.log(this.geojson);
     this.geojson.resetStyle(e.target);
 	}
 
