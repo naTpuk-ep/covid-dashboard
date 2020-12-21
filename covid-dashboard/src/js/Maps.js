@@ -2,15 +2,13 @@
 
 // localStorage.clear();
 
-const GeoJSON = require('geojson');
-import countries from './countries';
+import geoData from '../assets/countries.geo.json';
 const L_Token = 'pk.eyJ1IjoibmF0cHVrLWVwIiwiYSI6ImNraXJxZHZyNzBwejEydGwzcTg3NXpidG4ifQ.GL9jfvvsWibQh0y7c-Ycdw';
-// const geoData = require('../assets/countries.json');
-const geoData = GeoJSON.parse(countries, {Polygon: 'borders'});
 
 export default class Maps {
 	constructor(data) {
 		this.data = data;
+		this.geoData = geoData;
 		this.state = {
 			today: false,
 			sample: false,
@@ -18,21 +16,40 @@ export default class Maps {
 		const wrapper = document.querySelector('.main__section_map .main__section-content');
 		wrapper.innerHTML = '<div id="map"></div>';
 		this.initMap();
-		this.initGeoData(geoData);
-		this.style = this.style.bind(this);
-		this.onEachFeature = this.onEachFeature.bind(this);
-		this.highlightHandler = this.highlightHandler.bind(this);
-		this.resetHighlightHandler = this.resetHighlightHandler.bind(this);
-		this.reset = this.reset.bind(this);
-		this.update = this.update.bind(this);
+		this.bindContext();
+		this.initGeoData();
 		this.initDataLayer();
+		this.createPopup();
+	}
+
+	createPopup() {
+		this.info = L.control();
+		// eslint-disable-next-line no-unused-vars
+		this.info.onAdd = function () {
+				this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+				this.update();
+				return this._div;
+		};
+		this.info.update = function (feature) {
+			if (feature) {
+				this._div.style.display = '';
+
+				this._div.innerHTML = `<h4>${feature.properties.name}</h4><b>${feature.getDataforView()}</b>`;
+			} else {
+				this._div.style.display = 'none';
+			}
+		};
+		this.info.addTo(this.map);
 	}
 
 	initMap() {
 		this.map = L.map('map', {
 			worldCopyJump: true,
 			center: [30, 0],
-			zoom: 1.5
+			zoom: 1.5,
+			minZoom: 1,
+			maxBounds: [[90, -180], [-90, 180]],
+			maxBoundsViscosity: 1,
 		});
 		L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}`, {
 			// attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -42,15 +59,19 @@ export default class Maps {
 			zoomOffset: -1,
 			accessToken: L_Token
 		}).addTo(this.map);
+
+		L.control.scale({
+			imperial: false,
+			updateWhenIdle: true,
+		}).addTo(this.map);
 	}
 
-	initGeoData(geoData) {
-		this.geoData = geoData;
-		console.log(this.geoData);
+	initGeoData() {
 		const currentCountriesCases = this._getCurrentCountriesCases();
+		console.log(this.geoData);
 		this.geoData.features.forEach(feature => {
 			feature.getDataforView = () => {
-				return currentCountriesCases[feature.properties.code] || 0;
+				return Math.round(currentCountriesCases[feature.properties.iso_a2]) || 0;
 			};
 		});
 	}
@@ -58,14 +79,21 @@ export default class Maps {
 	initDataLayer() {
 		this.geojson = L.geoJson(this.geoData, {
 			style: this.style,
-			onEachFeature: this.onEachFeature
+			onEachFeature: this.onEachFeature,
+		}).on({
+			remove: () => {
+				this.initGeoData();
+				this.initDataLayer();
+			}
 		}).addTo(this.map);
-		document.querySelector('.main__section_map .main__section-title').addEventListener('click', () => {
-			this.update({
-				today: true,
-				sample: true
-			});
-		});
+		//--example
+		// document.querySelector('.main__section_map .main__section-title').addEventListener('click', () => {
+		// 	this.updateMap({
+		// 		today: false,
+		// 		sample: true
+		// 	});
+		// });
+		//--
 	}
 
 	_getCurrentCountriesCases() {
@@ -75,19 +103,17 @@ export default class Maps {
 			let population = country.population;
 			let confirmed = this.state.today ? country.today.confirmed : country.latest_data.confirmed;
 			let cases = this.state.sample ? sampleVol * confirmed / population : confirmed;
-			currentCountriesCases[country.code] = cases;
+			currentCountriesCases[country.code] = cases || 0;
 		});
 		this.maxCasesValue = Math.max(...Object.values(currentCountriesCases));
-		console.log(currentCountriesCases);
 		return currentCountriesCases;
 	}
 
-	update(state) {
+	updateMap(state) {
 		this.state = state;
 		console.log(this.state);
-		this.geojson.remove();
-		console.log(this.geojson);
-		this.initDataLayer();
+		if (this.geojson) this.geojson.remove();
+		console.log('updated');
 	}
 
 	getColor(cases) {
@@ -96,38 +122,33 @@ export default class Maps {
 	}
 
 	style(feature) {
-		console.log('style');
     return {
         fillColor: this.getColor(feature.getDataforView()),
         weight: 1,
         opacity: 1,
         color: 'white',
         // dashArray: '3',
-        fillOpacity: 0.7
+        fillOpacity: 1
     };
 	}
 
 	highlightHandler(e) {
     let layer = e.target;
-
     layer.setStyle({
         weight: 3,
         color: 'white',
         dashArray: '',
         fillOpacity: 1
     });
-
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
-    }
+		}
+		this.info.update(layer.feature);
 	}
 
 	resetHighlightHandler(e) {
-    this.geojson.resetStyle(e.target);
-	}
-
-	zoomHandler(e) {
-    this.map.fitBounds(e.target.getBounds());
+		this.geojson.resetStyle(e.target);
+		this.info.update();
 	}
 
 	reset(e) {
@@ -138,8 +159,16 @@ export default class Maps {
     layer.on({
         mouseover: this.highlightHandler,
         mouseout: this.resetHighlightHandler,
-        // click: /*this.zoomHandler*/ this.reset,
     });
+	}
+
+	bindContext() {
+		this.style = this.style.bind(this);
+		this.onEachFeature = this.onEachFeature.bind(this);
+		this.highlightHandler = this.highlightHandler.bind(this);
+		this.resetHighlightHandler = this.resetHighlightHandler.bind(this);
+		this.reset = this.reset.bind(this);
+		this.updateMap = this.updateMap.bind(this);
 	}
 }
  
