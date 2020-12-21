@@ -10,7 +10,7 @@ module.exports = {
 		// open: {
 		// 	app: [
 
-				// ---------- custom chrome window ----------------
+    // 		// ---------- custom chrome window ----------------
 
     // 		'chrome', '--user-data-dir=c:/user_data_dirs/webpack-dev-server-window',
     // 		// '--disable-extensions-except=,c:/Users/patrick/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.10.0_0',
