@@ -1,5 +1,5 @@
 {
-  "name": "rs-css",
+  "name": "ccovid-dashboard",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -27,6 +27,9 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "geojson": "^0.5.0",
+    "geojson-world-map": "0.0.2",
+    "leaflet": "^1.7.1",
     "open": "^7.3.0"
   }
 }

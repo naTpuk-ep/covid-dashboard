@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import './index.scss';
 import getData from './js/getData.js';
 import APIUrls from './js/APIUrls.js';
