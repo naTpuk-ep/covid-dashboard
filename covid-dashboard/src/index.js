@@ -7,14 +7,4 @@ import List from './js/List';
 import Maps from './js/Maps';
 import Graph from './js/Graph';
 
-async function render() {
-	getData(APIUrls)
-		.then(res => {
-			console.log(res);						// ->  pull the data
-		})
-		.catch(e => {
-			console.error(e);
-		});
-}
-
-render();
+import { initTable } from './js/Table';

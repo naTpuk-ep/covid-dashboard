@@ -1,0 +1,15 @@
+.main {
+  &__content_table {
+    background-color: orange;
+    table {
+      border-collapse: collapse;
+      tr {
+        display: table-row;
+      }
+      td {
+        color: black;
+        border: 3px solid black;
+      }
+    }
+  }
+}
