@@ -9,6 +9,7 @@ const attributes = [
   'Recovered per 100K',
 ];
 const worldPop = 7827000000;
+
 let values = [];
 let pastDay = false;
 
@@ -61,8 +62,6 @@ async function createTableBody(country) {
   let countryData = await getCountries().then((result) =>
     result.find((el) => el.name === country),
   );
-
-  console.log(countryData);
 
   if (!pastDay) {
     !country
@@ -131,6 +130,4 @@ async function createTableBody(country) {
   return tr;
 }
 
-// initTable();
-
-export { initTable };
+export { initTable, attributes, worldPop };
