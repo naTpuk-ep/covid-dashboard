@@ -131,6 +131,6 @@ async function createTableBody(country) {
   return tr;
 }
 
-initTable();
+// initTable();
 
 export { initTable };
