@@ -1,4 +1,18 @@
-const { getTimeline, getCountries } = require('./API');
+let timeLine;
+let countries;
+function getTimeline() {
+  return timeLine;
+}
+function getCountries() {
+  return countries;
+}
+
+function updateTable(country) {
+  initTable({
+    global: timeLine,
+    countries,
+  }, country);
+}
 
 const attributes = [
   'Total cases',
@@ -13,7 +27,11 @@ const worldPop = 7827000000;
 let values = [];
 let pastDay = false;
 
-async function initTable(country = undefined) {
+function initTable(data, country = undefined) {
+
+  timeLine = data.global;
+  countries = data.countries;
+
   const tableSection = document.querySelector('.main__section_table');
   values.splice(0, values.length);
   tableSection.innerHTML = '';
@@ -25,16 +43,16 @@ async function initTable(country = undefined) {
   lastDayBtn.innerHTML = 'Data for Last day';
 
   table.append(createTableHead());
-  table.append(await createTableBody(country));
+  table.append(createTableBody(country));
   tableContent.append(table);
   tableSection.append(lastDayBtn, tableContent);
 
-  lastDayBtn.addEventListener('click', async () => {
+  lastDayBtn.addEventListener('click', () => {
     pastDay = !pastDay;
     values.splice(0, values.length);
     table.innerHTML = '';
     table.append(createTableHead());
-    table.append(await createTableBody(country));
+    table.append(createTableBody(country));
   });
 }
 
@@ -51,17 +69,13 @@ function createTableHead() {
   return tr;
 }
 
-async function createTableBody(country) {
+function createTableBody(country) {
   let tr = document.createElement('tr');
   tr.classList.add('body_tr');
 
-  let globalData = await getTimeline().then((result) =>
-    result.find((el, index) => index === 0),
-  );
+  let globalData = getTimeline().find((el, index) => index === 0);
 
-  let countryData = await getCountries().then((result) =>
-    result.find((el) => el.name === country),
-  );
+  let countryData = getCountries().find((el) => el.name === country);
 
   if (!pastDay) {
     !country
@@ -130,4 +144,4 @@ async function createTableBody(country) {
   return tr;
 }
 
-export { initTable, attributes, worldPop };
+export { updateTable, initTable, attributes, worldPop };

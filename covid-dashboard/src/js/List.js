@@ -1,5 +1,5 @@
 
-import { initTable } from './Table';
+import { updateTable } from './Table';
 
 export default class List {
 	constructor(data) {
@@ -81,7 +81,7 @@ export default class List {
 				if (new RegExp(`^${input}`, 'ig').test(country.name)) this.listElem.appendChild(elem);
 			} else this.listElem.appendChild(elem);
 			elem.addEventListener('click', (e) => {
-				initTable(e.target.getAttribute('data-name'));
+				updateTable(e.target.getAttribute('data-name'));
 			});
 		});
 	}

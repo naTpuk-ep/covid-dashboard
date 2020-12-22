@@ -1,6 +1,11 @@
+/* eslint-disable no-undef */
 import { attributes, worldPop } from './Table';
 
-const { getTimeline } = require('./API');
+let timeLine;
+function getTimeline() {
+  return timeLine;
+}
+
 const Chart = require('chart.js');
 const colors = [
   'yellow',
@@ -34,13 +39,16 @@ function initGraphMarkup() {
   graphSection.append(graphContent);
 }
 
-async function initGraph() {
-  const globalDataTimeline = await getTimeline().then((result) =>
-    result
+function initGraph(data) {
+  
+  timeLine = data.global;
+  initGraphMarkup();
+
+  const globalDataTimeline = getTimeline()
       .map((el) => el.date)
       .reverse()
-      .filter((e, i) => i % 10 === 0),
-  );
+      .filter((e, i) => i % 10 === 0);
+
   const chartConfig = {
     type: 'line',
     data: {
@@ -68,37 +76,28 @@ async function initGraph() {
   const buttonPrev = document.querySelector('.btn-prev');
   const buttonNext = document.querySelector('.btn-next');
 
-  async function addUserToChart(config) {
-    let mainData = await getTimeline().then((result) =>
-      result
+  function addUserToChart(config) {
+    let mainData = getTimeline()
         .map((el) => {
           switch (index) {
             case 0:
               return el.confirmed;
-              break;
             case 1:
               return el.deaths;
-              break;
             case 2:
               return el.recovered;
-              break;
             case 3:
               return ((el.confirmed / worldPop) * 100000).toFixed(1);
-              break;
             case 4:
               return ((el.deaths / worldPop) * 100000).toFixed(1);
-              break;
             case 5:
               return ((el.recovered / worldPop) * 100000).toFixed(1);
-              break;
             default:
               return el.confirmed;
-              break;
           }
         })
         .reverse()
-        .filter((e, i) => i % 10 === 0),
-    );
+        .filter((e, i) => i % 10 === 0);
 
     const newUser = {
       label: attributes[index],
@@ -127,5 +126,4 @@ async function initGraph() {
   });
 }
 
-initGraphMarkup();
-initGraph();
+export { initGraph };
