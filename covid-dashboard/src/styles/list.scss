@@ -1,0 +1,14 @@
+.main__section_list {
+	& .main__content {
+		max-height: 500px;
+		overflow-y: scroll;
+		& li {
+			list-style-type: none;
+			margin: 5px auto;
+			cursor: pointer;
+		}
+	}
+	& input {
+		display: block;
+	}
+}
