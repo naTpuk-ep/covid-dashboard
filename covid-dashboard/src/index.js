@@ -14,6 +14,7 @@ async function render() {
     .then((res) => {
       console.log(res); // ->  pull the data
       const maps = new Maps(res);
+      const list = new List(res);
     })
     .catch((e) => {
       console.error(e);
