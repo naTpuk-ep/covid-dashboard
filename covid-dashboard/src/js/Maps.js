@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
-
-// localStorage.clear();
+import { updateTable } from './Table';
 
 import geoData from '../assets/countries.geo.json';
 const L_Token =
@@ -154,7 +153,6 @@ export default class Maps {
       weight: 1,
       opacity: 1,
       color: 'white',
-      // dashArray: '3',
       fillOpacity: 1,
     };
   }
@@ -186,7 +184,16 @@ export default class Maps {
     layer.on({
       mouseover: this.highlightHandler,
       mouseout: this.resetHighlightHandler,
+      click: this.clickHandler,
     });
+  }
+
+  clickHandler(e) {
+    updateTable(
+      this.data.countries.find(country => 
+        country.code === e.target.feature.properties.iso_a2
+      ).name
+    );
   }
 
   bindContext() {
@@ -198,5 +205,6 @@ export default class Maps {
     );
     this.reset = this.reset.bind(this);
     this.updateMap = this.updateMap.bind(this);
+    this.clickHandler = this.clickHandler.bind(this);
   }
 }
