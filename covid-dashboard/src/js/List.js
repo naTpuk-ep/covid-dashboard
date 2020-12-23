@@ -99,6 +99,7 @@ export default class List {
     this.todayBtn.textContent = 'Last Day';
     this.listBtnsBlock.append(this.sampleBtn, this.todayBtn);
     this.wrapper.before(this.listBtnsBlock);
+
     this.wrapper.before(switchWrapper);
   }
 

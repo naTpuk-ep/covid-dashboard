@@ -51,9 +51,9 @@ export default class Maps {
     const switchWrapper = document.createElement('div');
     switchWrapper.classList.add('switch-wrapper');
     switchWrapper.innerHTML = `
-      <span><input value='confirmed' type="radio" name="list-cases" checked>confirmed</span>
-      <span><input value='deaths' type="radio" name="list-cases">deaths</span>
-      <span><input value='recovered' type="radio" name="list-cases">recovered</span>
+      <span><input value='confirmed' type="radio" name="maps-cases" checked>confirmed</span>
+      <span><input value='deaths' type="radio" name="maps-cases">deaths</span>
+      <span><input value='recovered' type="radio" name="maps-cases">recovered</span>
 		`;
     this.swithchers = switchWrapper.querySelectorAll('input[type="radio"]');
 
