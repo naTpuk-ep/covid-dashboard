@@ -39,6 +39,7 @@ export default class List {
 
 	initSearch() {
 		this.input = document.createElement('input');
+		this.input.type = 'text';
 		this.wrapper.before(this.input);
 	}
 
@@ -49,15 +50,26 @@ export default class List {
 		this.todayBtn.addEventListener('click', () => {
 			this.todayHandler();
 		});
-		// [...this.listElem.children].forEach(li => {
-
-		// });
+		[...this.swithchers].forEach(radio => {
+			radio.addEventListener('change', () => {
+				this.initList(this.input.value);
+			});
+		});
 		this.input.addEventListener('input', (e) => {
 			this.initList(e.target.value);
 		});
 	}
 
 	addButtons() {
+		const switchWrapper = document.createElement('div');
+    switchWrapper.classList.add('switch-wrapper');
+    switchWrapper.innerHTML = `
+      <span><input value='confirmed' type="radio" name="list-cases" checked>confirmed</span>
+      <span><input value='deaths' type="radio" name="list-cases">deaths</span>
+      <span><input value='recovered' type="radio" name="list-cases">recovered</span>
+		`;
+		this.wrapper.before(switchWrapper);
+		this.swithchers = switchWrapper.querySelectorAll('input[type="radio"]');
 		this.sampleBtn = document.createElement('button');
 		this.sampleBtn.textContent = 'per 100K';
 		this.wrapper.before(this.sampleBtn);
@@ -88,20 +100,27 @@ export default class List {
 
 	getCurrentCountriesCases() {
 		const sampleVol = 100000;
-    const currentCountriesCases = [];
+		const currentCountriesCases = [];
+		let checked;
+		[...this.swithchers].forEach(radio => {
+			if (radio.checked) {
+				checked = radio.value;
+			}
+		});
     this.data.countries.forEach((country) => {
       let population = country.population;
-      let confirmed = this.state.today
-        ? country.today.confirmed
-        : country.latest_data.confirmed;
+      let currentData = this.state.today
+        ? country.today[checked]
+        : country.latest_data[checked];
       let cases = this.state.sample
-        ? (sampleVol * confirmed) / population
-				: confirmed;
-				const countryCases = {};
-				countryCases.name = country.name;
-				countryCases.code = country.code;
-				countryCases.cases = Math.round(cases) || 0;
-				currentCountriesCases.push(countryCases);
+        ? (sampleVol * currentData) / population
+				: currentData;
+			const countryCases = {};
+			countryCases.name = country.name;
+			countryCases.code = country.code;
+			countryCases.cases = Math.round(cases * 10) / 10 || 0;
+			if (this.state.today && country.today[checked] === undefined) countryCases.cases = 'no data';
+			currentCountriesCases.push(countryCases);
 		});
 		return currentCountriesCases.sort((a, b) => b.cases - a.cases);
 	}

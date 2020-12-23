@@ -13,22 +13,98 @@ export default class Maps {
       today: false,
       sample: false,
     };
-    const wrapper = document.querySelector(
+    this.wrapper = document.querySelector(
       '.main__section_map .main__content',
     );
-    wrapper.innerHTML = '<div id="map"></div>';
+    this.wrapper.innerHTML = '<div id="map"></div>';
     this.initMap();
     this.bindContext();
+    this.switchersElemsInit();
+    this.bindSwitchers();
     this.initGeoData();
     this.initDataLayer();
     this.createPopup();
+		this.addLegend();
   }
+
+  addLegend() {
+		this.legend = L.control({position: 'bottomright'});
+    // let max = this.maxCasesValue;
+    // let checked = this.checked;
+		this.legend.onAdd = () => {
+      let div = L.DomUtil.create('div', 'info legend');
+      div.innerHTML = this.checked === 'confirmed'
+      ? `<div>0</div><div class="legend-gradient legend-gradient__yellow"></div><div>${this.maxCasesValue}</div>`
+      : this.checked === 'deaths'
+      ? `<div>0</div><div class="legend-gradient legend-gradient__red"></div><div>${this.maxCasesValue}</div>`
+      : `<div>0</div><div class="legend-gradient legend-gradient__green"></div><div>${this.maxCasesValue}</div>`;
+      return div;
+    };
+    
+    this.legend.onRemove = () => {
+      this.addLegend();
+    };
+		
+		this.legend.addTo(this.map);
+	}
+
+  switchersElemsInit() {
+		const switchWrapper = document.createElement('div');
+    switchWrapper.classList.add('switch-wrapper');
+    switchWrapper.innerHTML = `
+      <span><input value='confirmed' type="radio" name="map-cases" checked>confirmed</span>
+      <span><input value='deaths' type="radio" name="map-cases">deaths</span>
+      <span><input value='recovered' type="radio" name="map-cases">recovered</span>
+		`;
+		this.wrapper.before(switchWrapper);
+    this.swithchers = switchWrapper.querySelectorAll('input[type="radio"]');
+		this.sampleBtn = document.createElement('button');
+		this.sampleBtn.textContent = 'per 100K';
+		this.wrapper.before(this.sampleBtn);
+		this.todayBtn = document.createElement('button');
+		this.todayBtn.textContent = 'Last Day';
+		this.wrapper.before(this.todayBtn);
+  }
+
+  bindSwitchers() {
+		this.sampleBtn.addEventListener('click', () => {
+			this.sampleHandler();
+		});
+		this.todayBtn.addEventListener('click', () => {
+			this.todayHandler();
+		});
+		[...this.swithchers].forEach(radio => {
+			radio.addEventListener('change', () => {
+				this.updateMap();
+			});
+		});
+  }
+  sampleHandler() {
+		if (this.state.sample) {
+			this.sampleBtn.textContent = 'Per 100K';
+			this.state.sample = false;
+		} else {
+			this.sampleBtn.textContent = 'All cases';
+			this.state.sample = true;
+		}
+		this.updateMap();
+	}
+
+	todayHandler() {
+		if (this.state.today) {
+			this.todayBtn.textContent = 'Last Day';
+			this.state.today = false;
+		} else {
+			this.todayBtn.textContent = 'All time';
+			this.state.today = true;
+		}
+		this.updateMap();
+	}
 
   createPopup() {
     this.info = L.control();
-    // eslint-disable-next-line no-unused-vars
     this.info.onAdd = function () {
-      this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+      this._div = L.DomUtil.create('div', 'info');
       this.update();
       return this._div;
     };
@@ -79,14 +155,13 @@ export default class Maps {
   }
 
   initGeoData() {
-    const currentCountriesCases = this._getCurrentCountriesCases();
-    console.log(this.geoData);
+    const currentCountriesCases = this.getCurrentCountriesCases();
     this.geoData.features.forEach((feature) => {
       feature.getDataforView = () => {
         return (
           Math.round(
-            currentCountriesCases[feature.properties.iso_a2],
-          ) || 0
+            currentCountriesCases[feature.properties.iso_a2] * 10
+          ) / 10 || 0
         );
       };
     });
@@ -114,37 +189,45 @@ export default class Maps {
     //--
   }
 
-  _getCurrentCountriesCases() {
+  getCurrentCountriesCases() {
     const sampleVol = 100000;
     const currentCountriesCases = {};
+		[...this.swithchers].forEach(radio => {
+			if (radio.checked) {
+				this.checked = radio.value;
+			}
+		});
     this.data.countries.forEach((country) => {
       let population = country.population;
       let confirmed = this.state.today
-        ? country.today.confirmed
-        : country.latest_data.confirmed;
+        ? country.today[this.checked]
+        : country.latest_data[this.checked];
       let cases = this.state.sample
         ? (sampleVol * confirmed) / population
         : confirmed;
       currentCountriesCases[country.code] = cases || 0;
     });
-    this.maxCasesValue = Math.max(
-      ...Object.values(currentCountriesCases),
-    );
+    this.maxCasesValue = Math.round(Math.max(
+      ...Object.values(currentCountriesCases)
+    ) * 10) / 10;
     return currentCountriesCases;
   }
 
-  updateMap(state) {
-    this.state = state;
-    console.log(this.state);
+  updateMap() {
     if (this.geojson) this.geojson.remove();
-    console.log('updated');
+    if (this.legend) this.legend.remove();
   }
 
   getColor(cases) {
     const casesVisualize = Math.sqrt(
-      1 - (cases / this.maxCasesValue - 1) ** 2,
+      1 - (cases / this.maxCasesValue - 1) ** 2
     );
-    return `rgb(255 165 0 / ${casesVisualize})`;
+    this.color = this.checked === 'confirmed'
+    ? `rgb(255 255 ${(1 - casesVisualize) * 255})`
+    : this.checked === 'deaths'
+    ? `rgb(255 ${(1 - casesVisualize) * 255} ${(1 - casesVisualize) * 255})`
+    : `rgb(${(1 - casesVisualize) * 255} 255 ${(1 - casesVisualize) * 255})`;
+    return this.color;
   }
 
   style(feature) {
@@ -152,8 +235,8 @@ export default class Maps {
       fillColor: this.getColor(feature.getDataforView()),
       weight: 1,
       opacity: 1,
-      color: 'white',
-      fillOpacity: 1,
+      color: 'black',
+      fillOpacity: 0.6,
     };
   }
 
@@ -163,7 +246,7 @@ export default class Maps {
       weight: 3,
       color: 'white',
       dashArray: '',
-      fillOpacity: 1,
+      fillOpacity: 0.6,
     });
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
       layer.bringToFront();

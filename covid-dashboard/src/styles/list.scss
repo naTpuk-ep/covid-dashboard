@@ -8,7 +8,10 @@
 			cursor: pointer;
 		}
 	}
-	& input {
+	& input[type=text] {
 		display: block;
+	}
+	& span {
+		color: white;
 	}
 }
