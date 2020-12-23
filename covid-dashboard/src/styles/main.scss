@@ -17,17 +17,18 @@ h2 {
 
 .header {
   &__container {
-    margin: 50px 70px;
+    display: flex;
+    justify-content: center;
   }
 
   &__title {
+    margin-top: 30px;
     text-align: center;
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 }
 .main {
   &__container {
-    margin: 50px 70px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -45,6 +46,11 @@ h2 {
 
   &__content {
     min-height: 100px;
-    // background-color: orange;
+  }
+
+  &__buttons-block {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 20px;
   }
 }

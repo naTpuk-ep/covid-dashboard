@@ -13,9 +13,7 @@ export default class Maps {
       today: false,
       sample: false,
     };
-    this.wrapper = document.querySelector(
-      '.main__section_map .main__content',
-    );
+    this.wrapper = document.querySelector('.main__section_map .main__content');
     this.wrapper.innerHTML = '<div id="map"></div>';
     this.initMap();
     this.bindContext();
@@ -24,82 +22,88 @@ export default class Maps {
     this.initGeoData();
     this.initDataLayer();
     this.createPopup();
-		this.addLegend();
+    this.addLegend();
   }
 
   addLegend() {
-		this.legend = L.control({position: 'bottomright'});
+    this.legend = L.control({ position: 'bottomright' });
     // let max = this.maxCasesValue;
     // let checked = this.checked;
-		this.legend.onAdd = () => {
+    this.legend.onAdd = () => {
       let div = L.DomUtil.create('div', 'info legend');
-      div.innerHTML = this.checked === 'confirmed'
-      ? `<div>0</div><div class="legend-gradient legend-gradient__yellow"></div><div>${this.maxCasesValue}</div>`
-      : this.checked === 'deaths'
-      ? `<div>0</div><div class="legend-gradient legend-gradient__red"></div><div>${this.maxCasesValue}</div>`
-      : `<div>0</div><div class="legend-gradient legend-gradient__green"></div><div>${this.maxCasesValue}</div>`;
+      div.innerHTML =
+        this.checked === 'confirmed'
+          ? `<div>0</div><div class="legend-gradient legend-gradient__yellow"></div><div>${this.maxCasesValue}</div>`
+          : this.checked === 'deaths'
+          ? `<div>0</div><div class="legend-gradient legend-gradient__red"></div><div>${this.maxCasesValue}</div>`
+          : `<div>0</div><div class="legend-gradient legend-gradient__green"></div><div>${this.maxCasesValue}</div>`;
       return div;
     };
-    
+
     this.legend.onRemove = () => {
       this.addLegend();
     };
-		
-		this.legend.addTo(this.map);
-	}
+
+    this.legend.addTo(this.map);
+  }
 
   switchersElemsInit() {
-		const switchWrapper = document.createElement('div');
+    const switchWrapper = document.createElement('div');
     switchWrapper.classList.add('switch-wrapper');
     switchWrapper.innerHTML = `
-      <span><input value='confirmed' type="radio" name="map-cases" checked>confirmed</span>
-      <span><input value='deaths' type="radio" name="map-cases">deaths</span>
-      <span><input value='recovered' type="radio" name="map-cases">recovered</span>
+      <span><input value='confirmed' type="radio" name="list-cases" checked>confirmed</span>
+      <span><input value='deaths' type="radio" name="list-cases">deaths</span>
+      <span><input value='recovered' type="radio" name="list-cases">recovered</span>
 		`;
-		this.wrapper.before(switchWrapper);
     this.swithchers = switchWrapper.querySelectorAll('input[type="radio"]');
-		this.sampleBtn = document.createElement('button');
-		this.sampleBtn.textContent = 'per 100K';
-		this.wrapper.before(this.sampleBtn);
-		this.todayBtn = document.createElement('button');
-		this.todayBtn.textContent = 'Last Day';
-		this.wrapper.before(this.todayBtn);
+
+    this.listBtnsBlock = document.createElement('div');
+    this.listBtnsBlock.classList.add('main__buttons-block', 'btn-group');
+    this.sampleBtn = document.createElement('button');
+    this.sampleBtn.classList.add('btn', 'btn-outline-dark');
+    this.sampleBtn.textContent = 'per 100K';
+    this.todayBtn = document.createElement('button');
+    this.todayBtn.classList.add('btn', 'btn-outline-dark');
+    this.todayBtn.textContent = 'Last Day';
+    this.listBtnsBlock.append(this.sampleBtn, this.todayBtn);
+    this.wrapper.before(this.listBtnsBlock);
+    this.wrapper.before(switchWrapper);
   }
 
   bindSwitchers() {
-		this.sampleBtn.addEventListener('click', () => {
-			this.sampleHandler();
-		});
-		this.todayBtn.addEventListener('click', () => {
-			this.todayHandler();
-		});
-		[...this.swithchers].forEach(radio => {
-			radio.addEventListener('change', () => {
-				this.updateMap();
-			});
-		});
+    this.sampleBtn.addEventListener('click', () => {
+      this.sampleHandler();
+    });
+    this.todayBtn.addEventListener('click', () => {
+      this.todayHandler();
+    });
+    [...this.swithchers].forEach((radio) => {
+      radio.addEventListener('change', () => {
+        this.updateMap();
+      });
+    });
   }
   sampleHandler() {
-		if (this.state.sample) {
-			this.sampleBtn.textContent = 'Per 100K';
-			this.state.sample = false;
-		} else {
-			this.sampleBtn.textContent = 'All cases';
-			this.state.sample = true;
-		}
-		this.updateMap();
-	}
+    if (this.state.sample) {
+      this.sampleBtn.textContent = 'Per 100K';
+      this.state.sample = false;
+    } else {
+      this.sampleBtn.textContent = 'All cases';
+      this.state.sample = true;
+    }
+    this.updateMap();
+  }
 
-	todayHandler() {
-		if (this.state.today) {
-			this.todayBtn.textContent = 'Last Day';
-			this.state.today = false;
-		} else {
-			this.todayBtn.textContent = 'All time';
-			this.state.today = true;
-		}
-		this.updateMap();
-	}
+  todayHandler() {
+    if (this.state.today) {
+      this.todayBtn.textContent = 'Last Day';
+      this.state.today = false;
+    } else {
+      this.todayBtn.textContent = 'All time';
+      this.state.today = true;
+    }
+    this.updateMap();
+  }
 
   createPopup() {
     this.info = L.control();
@@ -159,9 +163,7 @@ export default class Maps {
     this.geoData.features.forEach((feature) => {
       feature.getDataforView = () => {
         return (
-          Math.round(
-            currentCountriesCases[feature.properties.iso_a2] * 10
-          ) / 10 || 0
+          Math.round(currentCountriesCases[feature.properties.iso_a2] * 10) / 10 || 0
         );
       };
     });
@@ -192,24 +194,21 @@ export default class Maps {
   getCurrentCountriesCases() {
     const sampleVol = 100000;
     const currentCountriesCases = {};
-		[...this.swithchers].forEach(radio => {
-			if (radio.checked) {
-				this.checked = radio.value;
-			}
-		});
+    [...this.swithchers].forEach((radio) => {
+      if (radio.checked) {
+        this.checked = radio.value;
+      }
+    });
     this.data.countries.forEach((country) => {
       let population = country.population;
       let confirmed = this.state.today
         ? country.today[this.checked]
         : country.latest_data[this.checked];
-      let cases = this.state.sample
-        ? (sampleVol * confirmed) / population
-        : confirmed;
+      let cases = this.state.sample ? (sampleVol * confirmed) / population : confirmed;
       currentCountriesCases[country.code] = cases || 0;
     });
-    this.maxCasesValue = Math.round(Math.max(
-      ...Object.values(currentCountriesCases)
-    ) * 10) / 10;
+    this.maxCasesValue =
+      Math.round(Math.max(...Object.values(currentCountriesCases)) * 10) / 10;
     return currentCountriesCases;
   }
 
@@ -219,14 +218,13 @@ export default class Maps {
   }
 
   getColor(cases) {
-    const casesVisualize = Math.sqrt(
-      1 - (cases / this.maxCasesValue - 1) ** 2
-    );
-    this.color = this.checked === 'confirmed'
-    ? `rgb(255 255 ${(1 - casesVisualize) * 255})`
-    : this.checked === 'deaths'
-    ? `rgb(255 ${(1 - casesVisualize) * 255} ${(1 - casesVisualize) * 255})`
-    : `rgb(${(1 - casesVisualize) * 255} 255 ${(1 - casesVisualize) * 255})`;
+    const casesVisualize = Math.sqrt(1 - (cases / this.maxCasesValue - 1) ** 2);
+    this.color =
+      this.checked === 'confirmed'
+        ? `rgb(255 255 ${(1 - casesVisualize) * 255})`
+        : this.checked === 'deaths'
+        ? `rgb(255 ${(1 - casesVisualize) * 255} ${(1 - casesVisualize) * 255})`
+        : `rgb(${(1 - casesVisualize) * 255} 255 ${(1 - casesVisualize) * 255})`;
     return this.color;
   }
 
@@ -273,9 +271,9 @@ export default class Maps {
 
   clickHandler(e) {
     updateTable(
-      this.data.countries.find(country => 
-        country.code === e.target.feature.properties.iso_a2
-      ).name
+      this.data.countries.find(
+        (country) => country.code === e.target.feature.properties.iso_a2,
+      ).name,
     );
   }
 
@@ -283,9 +281,7 @@ export default class Maps {
     this.style = this.style.bind(this);
     this.onEachFeature = this.onEachFeature.bind(this);
     this.highlightHandler = this.highlightHandler.bind(this);
-    this.resetHighlightHandler = this.resetHighlightHandler.bind(
-      this,
-    );
+    this.resetHighlightHandler = this.resetHighlightHandler.bind(this);
     this.reset = this.reset.bind(this);
     this.updateMap = this.updateMap.bind(this);
     this.clickHandler = this.clickHandler.bind(this);

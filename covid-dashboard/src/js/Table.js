@@ -1,7 +1,7 @@
 let timeLine;
 let countries;
 let values = [];
-let pastDay = false;
+let lastDay = false;
 let per100k = false;
 
 const attributes = ['Cases', 'Deaths', 'Recovered'];
@@ -23,7 +23,7 @@ function initTable(data, country = undefined) {
   };
 
   if (!country) {
-    if (!pastDay) {
+    if (!lastDay) {
       createValue(globalData.confirmed, worldPop);
       createValue(globalData.deaths, worldPop);
       createValue(globalData.recovered, worldPop);
@@ -33,7 +33,7 @@ function initTable(data, country = undefined) {
       createValue(globalData.new_recovered, worldPop);
     }
   } else {
-    if (!pastDay) {
+    if (!lastDay) {
       createValue(countryData.latest_data.confirmed, countryData.population);
       createValue(countryData.latest_data.deaths, countryData.population);
       createValue(countryData.latest_data.recovered, countryData.population);
@@ -84,16 +84,19 @@ function createTableBody() {
 
 function createBtnsBlock(country) {
   const tableBtnsBlock = document.createElement('div');
-  tableBtnsBlock.classList.add('main__buttons-block_table');
+  tableBtnsBlock.classList.add('main__buttons-block', 'btn-group');
 
   const lastDayBtn = document.createElement('button');
-  const per100kBtn = document.createElement('button');
+  lastDayBtn.classList.add('btn', 'btn-outline-dark');
 
-  lastDayBtn.innerHTML = 'Last day';
-  per100kBtn.innerHTML = 'per 100K';
+  const per100kBtn = document.createElement('button');
+  per100kBtn.classList.add('btn', 'btn-outline-dark');
+
+  lastDayBtn.innerHTML = !lastDay ? 'Last day' : 'All time';
+  per100kBtn.innerHTML = !per100k ? 'Per 100K' : 'All cases';
 
   lastDayBtn.addEventListener('click', () => {
-    pastDay = !pastDay;
+    lastDay = !lastDay;
     updateTable(country);
   });
 
@@ -116,24 +119,5 @@ function updateTable(country) {
     country,
   );
 }
-
-// const switcher = document.createElement('div');
-// const switcherButton = document.createElement('button');
-// switcher.classList.add('header__swicher');
-// switcher.id = 'switch';
-// const playText = document.createElement('span');
-// const trainText = document.createElement('span');
-// playText.classList.add('swicher-play');
-// playText.innerHTML = 'play';
-// trainText.classList.add('swicher-train');
-// trainText.innerHTML = 'train';
-// switcher.append(switcherButton, trainText, playText);
-
-// const switcher = document.getElementById('switch');
-// switcher.addEventListener('click', () => {
-//   switcher.classList.toggle('header__swicher-active');
-//   play = !play;
-//   renderNewElements(currentPage, currentPageId);
-// });
 
 export { updateTable, initTable, attributes, worldPop };

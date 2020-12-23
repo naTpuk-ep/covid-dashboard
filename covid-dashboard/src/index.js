@@ -2,7 +2,6 @@
 import './index.scss';
 import getData from './js/getData.js';
 import APIUrls from './js/APIUrls.js';
-import Main from './js/Main';
 import List from './js/List';
 import Maps from './js/Maps';
 import { initGraph } from './js/Graph';

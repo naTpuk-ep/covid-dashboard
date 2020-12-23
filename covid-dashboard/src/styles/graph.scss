@@ -7,7 +7,35 @@
 
   &__content {
     &_graph {
-      background-color: inherit;
+      background-color: #212529;
+      position: relative;
+      .buttons_block {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+
+        button {
+          position: absolute;
+          top: 3%;
+          border-radius: 50%;
+          padding: 5px 11px;
+          outline: none;
+          background-color: #fff;
+          border: none;
+          opacity: 0.4;
+          transition: 0.5s;
+          font-size: 0.5rem;
+        }
+        button:hover {
+          opacity: 1;
+        }
+        .btn-prev {
+          left: 3%;
+        }
+        .btn-next {
+          right: 3%;
+        }
+      }
     }
   }
 }
