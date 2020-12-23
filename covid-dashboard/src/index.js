@@ -11,7 +11,6 @@ import { initTable } from './js/Table';
 async function render() {
   getData(APIUrls)
     .then((data) => {
-      console.log(data);
       new Maps(data);
       new List(data);
       initTable(data);

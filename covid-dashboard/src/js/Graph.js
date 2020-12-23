@@ -1,20 +1,9 @@
-/* eslint-disable no-undef */
-import { attributes, worldPop } from './Table';
-
-let timeLine;
-function getTimeline() {
-  return timeLine;
-}
+import { attributes, values, worldPop } from './Table';
 
 const Chart = require('chart.js');
-const colors = [
-  'yellow',
-  'red',
-  'green',
-  'orange',
-  'tomato',
-  'lightgreen',
-];
+const colors = ['yellow', 'red', 'green', 'orange', 'tomato', 'lightgreen'];
+const graphAttributes = attributes.concat(attributes.map((el) => `${el} per 100k`));
+let timeLine;
 let index = 0;
 
 function initGraphMarkup() {
@@ -40,14 +29,13 @@ function initGraphMarkup() {
 }
 
 function initGraph(data) {
-  
   timeLine = data.global;
   initGraphMarkup();
 
-  const globalDataTimeline = getTimeline()
-      .map((el) => el.date)
-      .reverse()
-      .filter((e, i) => i % 10 === 0);
+  const globalDataTimeline = timeLine
+    .map((el) => el.date)
+    .reverse()
+    .filter((e, i) => i % 10 === 0);
 
   const chartConfig = {
     type: 'line',
@@ -77,30 +65,30 @@ function initGraph(data) {
   const buttonNext = document.querySelector('.btn-next');
 
   function addUserToChart(config) {
-    let mainData = getTimeline()
-        .map((el) => {
-          switch (index) {
-            case 0:
-              return el.confirmed;
-            case 1:
-              return el.deaths;
-            case 2:
-              return el.recovered;
-            case 3:
-              return ((el.confirmed / worldPop) * 100000).toFixed(1);
-            case 4:
-              return ((el.deaths / worldPop) * 100000).toFixed(1);
-            case 5:
-              return ((el.recovered / worldPop) * 100000).toFixed(1);
-            default:
-              return el.confirmed;
-          }
-        })
-        .reverse()
-        .filter((e, i) => i % 10 === 0);
+    let mainData = timeLine
+      .map((el) => {
+        switch (index) {
+          case 0:
+            return el.confirmed;
+          case 1:
+            return el.deaths;
+          case 2:
+            return el.recovered;
+          case 3:
+            return ((el.confirmed / worldPop) * 100000).toFixed(1);
+          case 4:
+            return ((el.deaths / worldPop) * 100000).toFixed(1);
+          case 5:
+            return ((el.recovered / worldPop) * 100000).toFixed(1);
+          default:
+            return el.confirmed;
+        }
+      })
+      .reverse()
+      .filter((e, i) => i % 10 === 0);
 
     const newUser = {
-      label: attributes[index],
+      label: graphAttributes[index],
       data: mainData,
       backgroundColor: colors[index],
       borderColor: colors[index],
