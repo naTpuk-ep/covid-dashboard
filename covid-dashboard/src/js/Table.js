@@ -11,8 +11,6 @@ function initTable(data, country = undefined) {
   const tableSection = document.querySelector('.main__section_table');
   const tableContent = document.createElement('div');
   const table = document.createElement('table');
-  const lastDayBtn = document.createElement('button');
-  const per100kBtn = document.createElement('button');
 
   values.splice(0, values.length);
   timeLine = data.global;
@@ -47,16 +45,52 @@ function initTable(data, country = undefined) {
   }
 
   tableContent.classList.add('main__content', 'main__content_table');
-  table.classList.add('table', 'table-dark', 'table-striped');
+  table.classList.add('table', 'table-dark', 'table-hover');
+
+  tableSection.innerHTML = '';
+  table.append(createTableHead(), createTableBody(country));
+  tableContent.append(table);
+  tableSection.append(createBtnsBlock(country), tableContent);
+}
+
+function createTableHead() {
+  const tHead = document.createElement('thead');
+  const tr = document.createElement('tr');
+
+  attributes.forEach((el) => {
+    let th = document.createElement('th');
+    th.setAttribute('scope', 'col');
+    th.innerHTML = el;
+    tr.append(th);
+  });
+
+  tHead.append(tr);
+  return tHead;
+}
+
+function createTableBody() {
+  const tBody = document.createElement('tbody');
+  let tr = document.createElement('tr');
+
+  values.forEach((el) => {
+    let td = document.createElement('td');
+    td.innerHTML = !el || isNaN(el) ? 'no data' : el;
+    tr.append(td);
+  });
+
+  tBody.append(tr);
+  return tBody;
+}
+
+function createBtnsBlock(country) {
+  const tableBtnsBlock = document.createElement('div');
+  tableBtnsBlock.classList.add('main__buttons-block_table');
+
+  const lastDayBtn = document.createElement('button');
+  const per100kBtn = document.createElement('button');
 
   lastDayBtn.innerHTML = 'Last day';
   per100kBtn.innerHTML = 'per 100K';
-
-  tableSection.innerHTML = '';
-  table.append(createTableHead());
-  table.append(createTableBody(country));
-  tableContent.append(table);
-  tableSection.append(per100kBtn, lastDayBtn, tableContent);
 
   lastDayBtn.addEventListener('click', () => {
     pastDay = !pastDay;
@@ -67,31 +101,10 @@ function initTable(data, country = undefined) {
     per100k = !per100k;
     updateTable(country);
   });
-}
 
-function createTableHead() {
-  let tr = document.createElement('tr');
-  tr.classList.add('header_tr');
+  tableBtnsBlock.append(per100kBtn, lastDayBtn);
 
-  attributes.forEach((el) => {
-    let td = document.createElement('td');
-    td.innerHTML = el;
-    tr.append(td);
-  });
-
-  return tr;
-}
-
-function createTableBody() {
-  let tr = document.createElement('tr');
-  tr.classList.add('body_tr');
-
-  values.forEach((el) => {
-    let td = document.createElement('td');
-    td.innerHTML = !el || isNaN(el) ? 'no data' : el;
-    tr.append(td);
-  });
-  return tr;
+  return tableBtnsBlock;
 }
 
 function updateTable(country) {
@@ -104,4 +117,23 @@ function updateTable(country) {
   );
 }
 
-export { updateTable, initTable, attributes, values, worldPop };
+// const switcher = document.createElement('div');
+// const switcherButton = document.createElement('button');
+// switcher.classList.add('header__swicher');
+// switcher.id = 'switch';
+// const playText = document.createElement('span');
+// const trainText = document.createElement('span');
+// playText.classList.add('swicher-play');
+// playText.innerHTML = 'play';
+// trainText.classList.add('swicher-train');
+// trainText.innerHTML = 'train';
+// switcher.append(switcherButton, trainText, playText);
+
+// const switcher = document.getElementById('switch');
+// switcher.addEventListener('click', () => {
+//   switcher.classList.toggle('header__swicher-active');
+//   play = !play;
+//   renderNewElements(currentPage, currentPageId);
+// });
+
+export { updateTable, initTable, attributes, worldPop };
