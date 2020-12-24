@@ -1,0 +1,64 @@
+body {
+  background: silver;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  font-family: Roboto, sans-serif;
+  font-size: 24px;
+  box-sizing: border-box;
+}
+
+h2 {
+  color: white;
+  font-size: 1rem;
+}
+
+.main {
+  &__container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+  }
+  &__left-col {
+    flex-basis: 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  &__right-col {
+    flex-basis: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__section {
+    margin: 20px;
+  }
+
+  &__title {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+
+  &__content {
+    min-height: 100px;
+  }
+
+  &__buttons-block {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .main {
+    &__container {
+      flex-wrap: wrap;
+    }
+  }
+}

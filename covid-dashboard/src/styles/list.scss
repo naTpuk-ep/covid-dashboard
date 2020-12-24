@@ -1,0 +1,33 @@
+.main__section_list {
+  & .main__content {
+    max-height: 500px;
+    overflow-y: scroll;
+    & table {
+      & tr {
+        cursor: pointer;
+      }
+    }
+  }
+  & input[type='text'] {
+    display: block;
+    width: 100%;
+
+    background: #212529;
+    color: #fff;
+  }
+  & input[type='text']:focus {
+    outline: none;
+  }
+  & .switch-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  & span {
+    color: #212529;
+    font-size: 0.8rem;
+    input {
+      margin-right: 5px;
+    }
+  }
+}

@@ -1,0 +1,17 @@
+.main {
+  &__content {
+    &_table {
+      table {
+        border: 1px solid #fff;
+        th,
+        td {
+          text-align: center;
+        }
+        tfoot {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+    }
+  }
+}
